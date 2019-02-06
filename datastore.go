@@ -127,6 +127,9 @@ func (a *accessor) queryNew(q dsq.Query) (dsq.Results, error) {
 	var rnge *util.Range
 	if q.Prefix != "" {
 		rnge = util.BytesPrefix([]byte(q.Prefix))
+		if len(q.SeekPrefix) > 0 {
+			rnge.Start = []byte(q.SeekPrefix)
+		}
 	}
 	i := a.ldb.NewIterator(rnge, nil)
 	return dsq.ResultsFromIterator(q, dsq.Iterator{
@@ -188,6 +191,9 @@ func (a *accessor) runQuery(worker goprocess.Process, qrb *dsq.ResultBuilder) {
 	var rnge *util.Range
 	if qrb.Query.Prefix != "" {
 		rnge = util.BytesPrefix([]byte(qrb.Query.Prefix))
+		if len(qrb.Query.SeekPrefix) > 0 {
+			rnge.Start = []byte(qrb.Query.SeekPrefix)
+		}
 	}
 	i := a.ldb.NewIterator(rnge, nil)
 	defer i.Release()
